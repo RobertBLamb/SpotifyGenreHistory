@@ -10,21 +10,21 @@ import base64
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-application = Flask(__name__)
+app = Flask(__name__)
 
-application.secret_key = "asdasdasd"
-application.config['SESSION_COOKIE_NAME'] = 'cookie'
+app.secret_key = "asdasdasd"
+app.config['SESSION_COOKIE_NAME'] = 'cookie'
 TOKEN_INFO = "token_info"
 
 
-@application.route('/')
+@app.route('/')
 def login():  # login to spotify
     sp_oauth = create_spotify_oauth()
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
 
-@application.route('/redirect')
+@app.route('/redirect')
 def redirect_page():  # move user to the graph generation page
     sp_oauth = create_spotify_oauth()
     session.clear()
@@ -34,7 +34,7 @@ def redirect_page():  # move user to the graph generation page
     return redirect(url_for('plot_png', _external=True))
 
 
-@application.route('/plot.png')
+@app.route('/plot.png')
 def plot_png():
 
     try:  # verify token is good
@@ -194,9 +194,8 @@ def input_data(monthly_likes):
 
 def create_spotify_oauth():
     return SpotifyOAuth(
-        # todo: move into a system variable before pushing to github
-        client_id=os.environ['SPOTIFY_CLIENT_ID'],
-        client_secret=os.environ['SPOTIFY_CLIENT_SECRET'],
+        client_id=os.environ.get('SPOTIFY_CLIENT_ID'),
+        client_secret=os.environ.get('SPOTIFY_CLIENT_SECRET'),
         redirect_uri=url_for('redirect_page', _external=True),
         scope="user-library-read"
     )
